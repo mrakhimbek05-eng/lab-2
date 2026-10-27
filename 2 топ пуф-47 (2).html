@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 10 - Refraction</title>
+<style>
+:root{--c:#1d4f91;--b:#cfd8e6;--bg:#f3f5f9}
+*{box-sizing:border-box}
+body{font:15px/1.55 system-ui,"Segoe UI",Arial,sans-serif;margin:0;background:var(--bg);color:#1c2430}
+header{background:var(--c);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+header h1{font-size:18px;margin:0}header p{margin:2px 0 0;font-size:12.5px;opacity:.9;max-width:640px}
+main{max-width:1000px;margin:0 auto;padding:12px}
+section{background:#fff;border:1px solid var(--b);border-radius:8px;padding:14px 18px;margin:12px 0}
+h2{font-size:17px;margin:0 0 8px;color:var(--c)}h3{font-size:15px;margin:10px 0 4px}
+button,select,input{font:inherit}
+button{background:var(--c);color:#fff;border:0;border-radius:6px;padding:7px 13px;cursor:pointer}
+button:hover{filter:brightness(1.15)}button.sec{background:#e4e9f2;color:#1c2430}button.red{background:#b3321f}
+.lang button{background:#ffffff33;margin-left:4px;padding:5px 10px}.lang button.on{background:#fff;color:var(--c)}
+.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+table.t{border-collapse:collapse;width:100%;font-size:14px}table.t td,table.t th{border:1px solid var(--b);padding:4px 7px;text-align:center}
+table.t th{background:#eaf0f8}table.t td.l{text-align:left}tr.sum td{background:#f3f7e8;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.box{border:1px solid var(--b);border-radius:6px;padding:8px 10px}
+.formula{font-size:20px;text-align:center;margin:8px 0;font-family:"Times New Roman",serif}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 4px}.fr i{font-style:normal;padding:0 4px}.fr i:first-child{border-bottom:1.5px solid}
+.sc{font-family:"Times New Roman",serif}
+.ap{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.ap figure{margin:0;text-align:center;font-size:13px;border:1px solid var(--b);border-radius:6px;padding:6px}
+svg{max-width:100%;height:auto;display:block;margin:auto}
+label{display:inline-block;margin:3px 8px 3px 0}
+input[type=number],input[type=text],select{padding:5px 7px;border:1px solid #9fb0c9;border-radius:5px;width:120px}
+input[type=range]{width:200px;vertical-align:middle}
+.msg{color:#b3321f;min-height:20px;font-weight:600}
+.warn{background:#fff4e0;border-left:4px solid #e08a00;padding:8px 12px}
+.ok{color:#17803d}.bad{color:#b3321f}
+ul,ol{margin:4px 0;padding-left:22px}
+textarea{width:100%;min-height:80px;padding:7px 9px;border:1px solid #9fb0c9;border-radius:6px;font:inherit;resize:vertical;background:#fff}
+input.wide{width:100%}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.g3 label{display:block;margin:0;font-weight:600;font-size:13.5px}.g3 textarea{margin-top:4px;font-weight:400}
+.autobox{background:#eafaf1;border-left:4px solid #17a56b;border-radius:6px;padding:12px 14px;margin-top:8px}
+
+*:focus-visible{outline:3px solid #f90;outline-offset:2px}
+#accbtn{background:#fff;color:var(--c);font-weight:600}
+#accp{display:none;background:#fff;border-bottom:3px solid var(--c);padding:10px 20px}
+#accp.open{display:block}
+#accp .row{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:4px 0}
+#accp label{margin:0;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#accp input[type=checkbox]{width:20px;height:20px}
+#accp h3{margin:0 0 4px}
+main{zoom:var(--z,1)}
+.accsec{display:none}body.acc-guide .accsec{display:block}
+.accsec ol{font-size:1.1em;line-height:1.9}.accsec li{margin:6px 0}
+.spk{display:none;float:right;margin:0 0 6px 8px;padding:4px 10px;background:#e4e9f2;color:#1c2430}
+body.acc-speak .spk{display:inline-block}
+#fnav{display:none;position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:3px solid var(--c);padding:8px 12px;gap:10px;align-items:center;justify-content:center;z-index:50}
+body.acc-focus #fnav{display:flex}body.acc-focus main{padding-bottom:70px}
+body.acc-focus main>section{display:none}body.acc-focus main>section.cur{display:block}
+body.acc-readf{font-family:Verdana,Arial,sans-serif;letter-spacing:.04em;word-spacing:.12em;line-height:1.9}
+body.acc-readf p,body.acc-readf li{max-width:70ch}
+body.acc-big button,body.acc-big select,body.acc-big input{min-height:44px;font-size:1.05em}
+body.acc-big input[type=number],body.acc-big input[type=text],body.acc-big select{width:150px}
+body.acc-big input[type=range]{width:260px}
+body.acc-big input[type=checkbox]{min-height:0}
+body.acc-hc{background:#000;color:#fff}
+body.acc-hc section,body.acc-hc #accp,body.acc-hc #fnav{background:#000;color:#fff;border-color:#ff0}
+body.acc-hc header{background:#000;color:#ff0;border-bottom:3px solid #ff0}
+body.acc-hc h2,body.acc-hc h3{color:#ff0}
+body.acc-hc button{background:#ff0;color:#000;font-weight:700}
+body.acc-hc button.sec,body.acc-hc .spk{background:#fff;color:#000}
+body.acc-hc .lang button.on{background:#0ff}
+body.acc-hc table.t th{background:#222;color:#ff0}body.acc-hc table.t td,body.acc-hc table.t th,body.acc-hc .box{border-color:#fff}
+body.acc-hc tr.sum td{background:#222}
+body.acc-hc .warn{background:#332b00;color:#fff}body.acc-hc .autobox{background:#00200f;color:#fff}
+body.acc-hc .ok{color:#3f3}body.acc-hc .bad,body.acc-hc .msg{color:#ff7b7b}
+body.acc-hc svg{background:#fff;border-radius:6px}
+body.acc-hc input,body.acc-hc select,body.acc-hc textarea{background:#fff;color:#000;border-color:#ff0}
+body.acc-hc #accbtn{background:#ff0;color:#000}
+@media print{#accp,#fnav,.spk,.accsec{display:none!important}main{zoom:1}}
+.gm{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
+@media(max-width:860px){.gm{grid-template-columns:1fr}}
+.insbox{margin-top:8px;text-align:left}
+.insbox .tools button{padding:5px 10px;font-size:13px}
+.insbox .tools button.on{background:#ff9500;color:#000;font-weight:700}
+#insinfo{background:#fffaf0;border-color:#e0b36a;line-height:1.5}
+body.acc-hc #insinfo{background:#000;border-color:#ff0}
+body.acc-hc .insbox .tools button.on{background:#0ff;color:#000}
+#model [data-ins]{cursor:pointer}
+@media print{textarea,input.wide{border:1px solid #999}body{background:#fff}.noprint{display:none!important}section{border:1px solid #999;break-inside:avoid}header{background:#fff!important;color:#000}main{max-width:none}}
+</style></head><body>
+<header>
+ <div><h1 data-t="title"></h1><p data-t="sub"></p></div>
+ <div class="tools noprint"><span class="lang"><button data-l="kk">ҚАЗ</button><button data-l="ru">РУС</button><button data-l="en">ENG</button></span>
+ <button id="accbtn" aria-expanded="false" aria-controls="accp" data-t="accb"></button>
+ <button id="bp" data-t="print"></button><button id="bpdf" data-t="pdf"></button></div>
+</header>
+<div id="accp" class="noprint" role="region" aria-labelledby="acct">
+ <h3 id="acct" data-t="acct"></h3>
+ <div class="row">
+  <span data-t="accsz"></span>
+  <button class="sec" id="zm" aria-label="A−">A−</button><b id="zv" aria-live="polite">100%</b><button class="sec" id="zp" aria-label="A+">A+</button>
+ </div>
+ <div class="row">
+  <label><input type="checkbox" id="o-hc"><span data-t="acchc"></span></label>
+  <label><input type="checkbox" id="o-readf"><span data-t="accrd"></span></label>
+  <label><input type="checkbox" id="o-big"><span data-t="accbg"></span></label>
+  <label><input type="checkbox" id="o-noanim"><span data-t="accna"></span></label>
+ </div>
+ <div class="row">
+  <label><input type="checkbox" id="o-guide"><span data-t="accgd"></span></label>
+  <label><input type="checkbox" id="o-focus"><span data-t="accfc"></span></label>
+  <label><input type="checkbox" id="o-speak"><span data-t="accsp"></span></label>
+  <button class="sec" id="accrst" data-t="accrs"></button>
+ </div>
+ <div class="msg" id="accmsg" role="status"></div>
+</div>
+<div id="fnav" class="noprint" role="navigation">
+ <button id="fprev" data-t="accpv"></button><b id="fpos" aria-live="polite"></b><button id="fnext" data-t="accnx"></button><button class="sec" id="fspk" data-t="accrdb"></button>
+</div>
+<main>
+
+<section class="accsec"><h2 data-t="gdh"></h2><ol data-t="gdl"></ol></section>
+
+<section><h2 data-t="h1"></h2><p data-t="q"></p></section>
+
+<section><h2 data-t="h2"></h2><p data-t="aim"></p><ol data-t="tasks"></ol></section>
+
+<section><h2 data-t="h3"></h2><p data-t="hyp"></p></section>
+
+<section><h2 data-t="h4"></h2>
+<div class="grid"><div>
+ <ul><li data-t="t1"></li><li data-t="t2"></li><li data-t="t3"></li><li data-t="t4"></li><li data-t="t5"></li></ul>
+ <div class="formula"><i>n</i> = <span class="fr"><i>sin <i class="sc">α</i></i><i>sin <i class="sc">γ</i></i></span> &nbsp;;&nbsp; <i>n</i> = <span class="fr"><i>c</i><i>v</i></span></div>
+ <p data-t="sym"></p>
+</div>
+<svg viewBox="0 0 360 250" width="360" font-family="Times New Roman,serif" font-size="14">
+ <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#d22"/></marker></defs>
+ <rect x="10" y="5" width="340" height="125" fill="#eef6ff"/><rect x="10" y="130" width="340" height="115" fill="#cfe8ee"/>
+ <line x1="10" y1="130" x2="350" y2="130" stroke="#222" stroke-width="2"/>
+ <line x1="180" y1="10" x2="180" y2="240" stroke="#555" stroke-dasharray="5 4"/>
+ <line x1="109" y1="46" x2="178" y2="128" stroke="#d22" stroke-width="2.5" marker-end="url(#ar)"/>
+ <line x1="180" y1="130" x2="224" y2="226" stroke="#d22" stroke-width="2.5" marker-end="url(#ar)"/>
+ <path d="M180 90A40 40 0 0 0 154.3 99.4" fill="none" stroke="#222"/><path d="M180 170A40 40 0 0 0 196.9 166.3" fill="none" stroke="#222"/>
+ <text x="154" y="78" font-style="italic">α</text><text x="194" y="190" font-style="italic">γ</text>
+ <text x="168" y="147">O</text><text x="186" y="20" data-t="lNorm"></text>
+ <text x="14" y="38" data-t="lInc"></text><text x="232" y="238" data-t="lRef"></text>
+ <text x="250" y="60"><tspan data-t="lAir"></tspan> (n₁)</text><text x="250" y="200"><tspan data-t="lMed"></tspan> (n₂)</text>
+</svg></div></section>
+
+<section><h2 data-t="h5"></h2>
+<table class="t"><tr><th data-t="vc1"></th><th data-t="vc2"></th></tr>
+<tr><td data-t="vi_h"></td><td class="l" data-t="vi"></td></tr>
+<tr><td data-t="vd_h"></td><td class="l" data-t="vd"></td></tr>
+<tr><td data-t="vk_h"></td><td class="l" data-t="vk"></td></tr></table></section>
+
+<section><h2 data-t="h6"></h2>
+<div class="ap">
+ <figure><svg viewBox="0 0 120 80"><rect x="8" y="30" width="70" height="20" rx="3" fill="#444"/><rect x="78" y="35" width="14" height="10" fill="#999"/><circle cx="30" cy="40" r="4" fill="#d22"/><line x1="92" y1="40" x2="118" y2="40" stroke="#e22" stroke-width="2.5"/></svg><figcaption data-t="ap1"></figcaption></figure>
+ <figure><svg viewBox="0 0 120 80"><path d="M10 20H110A50 50 0 0 1 10 20Z" fill="#b8e0e8" stroke="#3a7" stroke-width="2"/><path d="M25 26H95" stroke="#fff" stroke-width="2" opacity=".7"/></svg><figcaption data-t="ap2"></figcaption></figure>
+ <figure><svg viewBox="0 0 120 80" id="protr"><path d="M10 70A50 50 0 0 1 110 70Z" fill="#fff8d6" stroke="#885" stroke-width="1.5"/></svg><figcaption data-t="ap3"></figcaption></figure>
+ <figure><svg viewBox="0 0 120 80"><rect x="15" y="8" width="90" height="64" fill="#fff" stroke="#777"/><line x1="60" y1="10" x2="60" y2="70" stroke="#555" stroke-dasharray="4 3"/><line x1="25" y1="40" x2="95" y2="40" stroke="#222"/></svg><figcaption data-t="ap4"></figcaption></figure>
+ <figure><svg viewBox="0 0 120 80"><rect x="8" y="14" width="104" height="18" fill="#f2d98a" stroke="#865"/><line x1="12" y1="32" x2="108" y2="32" stroke="#865" stroke-width="7" stroke-dasharray="1 7"/><polygon points="10,56 84,50 84,62" fill="#e8b94a" stroke="#444"/><polygon points="84,50 98,53 98,59 84,62" fill="#e6c" /><polygon points="10,56 18,54 18,58" fill="#222"/></svg><figcaption data-t="ap5"></figcaption></figure>
+</div>
+<h3 data-t="apset"></h3>
+<svg viewBox="0 0 360 230" width="420" font-size="12" font-family="Arial">
+ <rect x="5" y="5" width="350" height="220" fill="#fff" stroke="#888"/>
+ <path d="M110 110H250A70 70 0 0 1 110 110Z" fill="#b8e0e8" stroke="#3a7" stroke-width="2"/>
+ <path d="M80 110A100 100 0 0 1 280 110" fill="none" stroke="#bbb" stroke-dasharray="3 3"/>
+ <line x1="180" y1="10" x2="180" y2="215" stroke="#555" stroke-dasharray="5 4"/>
+ <line x1="117" y1="20" x2="180" y2="110" stroke="#e22" stroke-width="2.5"/><line x1="180" y1="110" x2="206" y2="175" stroke="#e22" stroke-width="2.5"/>
+ <g transform="translate(117,20) rotate(-35)"><rect x="-7" y="-36" width="14" height="36" fill="#444"/><rect x="-3" y="-4" width="6" height="6" fill="#999"/></g>
+ <text x="186" y="104">O</text><text x="186" y="22" data-t="lNorm"></text>
+ <text x="14" y="18" data-t="lLaser"></text><text x="8" y="215" data-t="lPaper"></text>
+ <text x="196" y="200" data-t="lBlock"></text><text x="252" y="92" data-t="lProt"></text>
+</svg></section>
+
+<section class="warn"><h2 data-t="h7"></h2><ul data-t="safety"></ul></section>
+
+<section><h2 data-t="h8"></h2><ol data-t="steps"></ol>
+<h3 data-t="tbh"></h3>
+<table class="t" style="max-width:520px"><thead><tr><th data-t="tc1"></th><th data-t="tc2"></th></tr></thead><tbody id="ntab"></tbody></table></section>
+
+<section><h2 data-t="h9"></h2>
+<p data-t="howto"></p>
+<div class="noprint box">
+ <label><span data-t="mat"></span>: <select id="mat"></select></label>
+ <label><span data-t="alpha"></span>: <input type="range" id="al" min="5" max="80" step="1" value="30"> <b id="alv">30°</b></label>
+ <div style="margin-top:6px" class="tools">
+  <button id="bs" data-t="bstart"></button>
+  <label><span data-t="bin"></span>: <input type="text" id="bi" inputmode="decimal" placeholder="°"></label>
+  <button id="be" data-t="benter"></button>
+  <button id="br" class="sec" data-t="brep"></button>
+ </div>
+ <div class="msg" id="msg"></div>
+</div>
+<div class="gm" style="margin-top:8px">
+ <div><svg id="model" viewBox="0 0 520 420" width="520" role="img"></svg><div id="ro" style="text-align:center"></div>
+ <div class="insbox"><b data-t="insh"></b><div id="inslist" class="tools" style="margin:6px 0"></div><div id="insinfo" class="box" role="status" aria-live="polite" style="min-height:76px"></div></div></div>
+ <div>
+  <h3 data-t="tmod"></h3>
+  <table class="t"><thead><tr id="hm"></tr></thead><tbody id="tm"></tbody></table>
+  <h3 data-t="tstu"></h3>
+  <table class="t"><thead><tr id="hs"></tr></thead><tbody id="ts"></tbody></table>
+ </div>
+</div>
+<div class="grid" style="margin-top:10px">
+ <div class="box"><b data-t="gmod"></b><svg id="gm" viewBox="0 0 300 250" width="340"></svg></div>
+ <div class="box"><b data-t="gstu"></b><svg id="gs" viewBox="0 0 300 250" width="340"></svg></div>
+</div></section>
+
+<section><h2 data-t="h10"></h2>
+<div class="formula"><i>n̄</i> = <span class="fr"><i>n₁ + n₂ + … + n<sub>N</sub></i><i>N</i></span> ;
+ <i>Δn̄</i> = <span class="fr"><i>|n₁ − n̄| + … + |n<sub>N</sub> − n̄|</i><i>N</i></span> ;
+ <i>ε</i> = <span class="fr"><i>Δn̄</i><i>n̄</i></span> · 100 %</div>
+<div class="grid">
+ <div class="box"><h3 data-t="emod"></h3><div id="rm"></div></div>
+ <div class="box"><h3 data-t="estu"></h3><div id="rs"></div></div>
+</div>
+<div class="box" style="margin-top:10px"><h3 data-t="mycalc"></h3>
+ <label>n̄ <input type="text" id="sn" inputmode="decimal"></label><label>Δn̄ <input type="text" id="sd" inputmode="decimal"></label><label>ε, % <input type="text" id="se" inputmode="decimal"></label>
+ <button id="chk" class="noprint" data-t="chk"></button><div id="chkr" style="margin-top:4px"></div></div>
+</section>
+
+<section><h2 data-t="h11"></h2>
+<table class="t"><thead><tr><th></th><th data-t="cM"></th><th data-t="cS"></th><th data-t="cT"></th></tr></thead><tbody id="cmp"></tbody></table>
+<svg id="bar" viewBox="0 0 600 90" width="600" font-family="Arial" font-size="11"></svg>
+</section>
+<section><h2 data-t="h12"></h2>
+<div id="concl" class="autobox"></div></section>
+
+<section><h2 data-t="h13"></h2>
+<h3 data-t="peer"></h3>
+<label style="display:block;font-weight:600;font-size:13.5px" data-t="grpq"></label>
+<input type="text" class="wide" data-p="grpph">
+<div class="g3" style="margin-top:10px">
+ <label><span data-t="strong"></span><textarea data-p="strongph"></textarea></label>
+ <label><span data-t="notes"></span><textarea data-p="notesph"></textarea></label>
+ <label><span data-t="sugg"></span><textarea data-p="suggph"></textarea></label>
+</div>
+<h3 data-t="recv" style="margin-top:16px"></h3>
+<div class="g3">
+ <label><span data-t="recv1"></span><textarea></textarea></label>
+ <label><span data-t="recv2"></span><textarea></textarea></label>
+ <label><span data-t="recv3"></span><textarea></textarea></label>
+</div>
+</section>
+
+<section><h2 data-t="h14"></h2>
+<div class="g3">
+ <label><span data-t="d1"></span><textarea></textarea></label>
+ <label><span data-t="d2"></span><textarea></textarea></label>
+ <label><span data-t="d3"></span><textarea></textarea></label>
+</div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const MAT=[1.50,1.33,1.49,1.46,2.42],COL=['#9fd6e2','#8cc4f5','#cdeedb','#dcdcf3','#c4ecff'];
+const rad=d=>d*Math.PI/180,deg=r=>r*180/Math.PI;
+const T={
+kk:{title:"№10 зертханалық жұмыс: Шынының сыну көрсеткішін анықтау",sub:"8.5.1.9 – экспериментте шынының сыну көрсеткішін анықтау; 8.5.1.10 – анықталған мәнді кестелік мәнмен салыстыру және эксперимент нәтижесін бағалау",
+print:"🖨 Басып шығару",pdf:"📄 PDF-ке сақтау",
+h1:"1. Зерттеу сұрағы",h2:"2. Мақсаты мен міндеттері",h3:"3. Гипотеза",h4:"4. Қысқаша теория",h5:"5. Тәуелсіз, тәуелді және тұрақты шамалар",h6:"6. Құралдар мен қондырғы сызбасы",h7:"7. Қауіпсіздік ережелері (жұмысты бастамас бұрын оқыңыз)",h8:"8. Жұмыс барысы",h9:"9. Интерактивті модель",h10:"10. Нәтиже, есептеу формулалары",h11:"11. Модельдің болжамы мен тәжірибеде өлшенген мән",
+q:"Жарықтың түсу бұрышы өзгергенде шыныдағы сыну бұрышы қалай өзгереді және sin α / sin γ қатынасы бойынша шынының сыну көрсеткішін қандай дәлдікпен анықтауға болады?",
+aim:"<b>Мақсаты:</b> жарықтың ауадан шыныға өткендегі сынуын зерттеп, Снелль заңы арқылы шынының сыну көрсеткішін эксперименттік анықтау және кестелік мәнмен салыстыру.<br><b>Міндеттері:</b>",
+tasks:"<li>Жарықтың сыну заңын және сыну көрсеткішінің физикалық мағынасын қарастыру (теория).</li><li>Түсу бұрышының кемінде 5 мәнінде (10°–70°) сыну бұрышын өлшеп, кестеге жазу.</li><li>sin α, sin γ және n = sin α / sin γ мәнін есептеп, sin α–sin γ графигін салу.</li><li>Өлшеу қателіктерін (абсолютті және салыстырмалы) есептеу.</li><li>Табылған n мәнін кестелік мәнмен салыстырып, эксперимент нәтижесін бағалау.</li>",
+hyp:"<b>Егер</b> жарықтың түсу бұрышын арттырсақ, <b>онда</b> сыну бұрышы да артады (әрқашан түсу бұрышынан кіші), ал sin α / sin γ қатынасы тұрақты болып қалып, n ≈ 1,5 шығады, <b>себебі</b> жарық шыныда ауадағыдан баяу таралады және Снелль заңы бойынша екі орта үшін бұл қатынас тұрақты шама.",
+t1:"<b>Жарықтың сынуы</b> – жарық екі ортаның шекарасынан өткенде таралу бағытының өзгеруі (орталарда жарық жылдамдығы әртүрлі болғандықтан).",
+t2:"<b>Түсу бұрышы α</b> – түскен сәуле мен нормаль арасындағы бұрыш; <b>сыну бұрышы γ</b> – сынған сәуле мен нормаль арасындағы бұрыш.",
+t3:"<b>Нормаль</b> – түсу нүктесінде (O) екі ортаның бөлу шекарасына жүргізілген перпендикуляр.",
+t4:"<b>Сыну көрсеткіші n</b> – вакуумдағы жарық жылдамдығының ортадағы жылдамдығына қатынасы; ол ортаның оптикалық тығыздығын көрсетеді: n неғұрлым үлкен болса, сәуле соғұрлым көп бұрылады.",
+t5:"<b>Снелль заңы:</b> түскен сәуле, сынған сәуле және нормаль бір жазықтықта жатады, ал түсу бұрышы синусының сыну бұрышы синусына қатынасы – берілген екі орта үшін тұрақты шама. Ауадан шыныға өткенде (n₁ ≈ 1) n = sin α / sin γ.",
+sym:"α – түсу бұрышы; γ – сыну бұрышы; n – сыну көрсеткіші; c = 3·10⁸ м/с – вакуумдағы жарық жылдамдығы; v – ортадағы жарық жылдамдығы.",
+lNorm:"нормаль",lInc:"түскен сәуле",lRef:"сынған сәуле",lAir:"ауа",lMed:"шыны",
+vc1:"Шама түрі",vc2:"Сипаттамасы",vi_h:"Тәуелсіз",vi:"Түсу бұрышы α (лазер бағыты); қосымша зерттеуде – зат түрі.",vd_h:"Тәуелді",vd:"Сыну бұрышы γ; одан есептелетін sin α / sin γ және n.",vk_h:"Тұрақты",vk:"Бір шыны пластина; түсу нүктесі O; бір лазер (бір түсті жарық); пластина мен қағаздың орны; өлшеу құралы (транспортер).",
+ap1:"Лазер көрсеткіші",ap2:"Жартылай дөңгелек шыны пластина",ap3:"Транспортер (бұрыштық шкала)",ap4:"Ақ қағаз, нормаль және сызық",ap5:"Сызғыш және қарындаш",apset:"Қондырғы сызбасы (үстінен көрініс)",lLaser:"лазер",lPaper:"қағаз",lBlock:"шыны пластина",lProt:"шкала",
+safety:"<li>Лазер сәулесін ешқашан көзге, адамға бағыттамаңыз; шыныдан шағылған сәулеге де қарамаңыз.</li><li>Лазерді тек өлшеу кезінде қосыңыз, жұмыс аяқталғанда өшіріңіз.</li><li>Шыны пластинаны жиегінен ұстаңыз, үстелдің шетіне қоймаңыз; сынып кетсе, қолмен жинамай, мұғалімге хабарлаңыз.</li><li>Қарындаш пен транспортердің өткір ұштарынан сақтаныңыз.</li><li>Жұмыс орнында асықпаңыз, лазермен ойнамаңыз.</li>",
+steps:"<li>Ақ қағазды үстелге қойып, жартылай дөңгелек шыны пластинаның жазық жағын түзу сызыққа сәйкестендіріп орналастырыңыз; центрін O деп белгілеп, O нүктесінде нормаль жүргізіңіз.</li><li>Лазерді түсу бұрышы α = 10° болатындай бағыттап, сәулені O нүктесіне түсіріңіз.</li><li>Шыныдан шыққан сәуленің екі нүктесін қарындашпен белгілеп, пластинаны алып, сынған сәулені O-мен қосыңыз.</li><li>Транспортермен сыну бұрышы γ-ны өлшеңіз.</li><li>α-ны 20°, 30°, 40°, 50°, 60° етіп, өлшеуді қайталаңыз; нәтижені кестеге жазыңыз.</li><li>Әр өлшеу үшін sin α, sin γ және n = sin α / sin γ есептеңіз.</li><li>n̄, Δn̄ және ε есептеп, sin α–sin γ графигін салыңыз (графиктің еңісі n-ге тең).</li><li>n̄-ты кестелік мәнмен салыстырып, қорытынды жасаңыз.</li>",
+howto:"<b>Модельде жұмыс:</b> зат пен α таңдаңыз → «Тәжірибені бастау» → сәуленің сыну бұрышын γ шкаладан оқып, жолға жазыңыз → «Өлшенген мәнді кестеге енгізу» → α-ны өзгертіп қайталаңыз (кемінде 5 өлшеу). Жоғарғы кесте – модельдің болжамы (автоматты), төменгісі – сіздің өлшегеніңіз.",
+mat:"Зат",alpha:"Түсу бұрышы α",bstart:"▶ Тәжірибені бастау",bin:"Шкаладан оқыған γ, °",benter:"➕ Өлшенген мәнді кестеге енгізу",brep:"🔄 Тәжірибені қайталау (жаңа серия)",
+mats:["Шыны","Су","Акрил шыны","Кварц","Алмаз"],
+tmod:"Автоматты кесте – модельдің болжамы",tstu:"Оқушы кестесі – тәжірибеде өлшенген мәндер",gmod:"График 1: модельдің болжамы",gstu:"График 2: тәжірибеде өлшенген мәндер",
+th:["№","α, °","γ, °","sin α","sin γ","n","Δn"],mean:"Орташа",
+emod:"Модель бойынша (автоматты)",estu:"Оқушы өлшеуі бойынша (автоматты есеп)",
+lmean:"Орташа n̄",ldn:"Абсолютті қателік Δn̄",leps:"Салыстырмалы қателік ε",lk:"График еңісі k",none:"Деректер жоқ",
+mycalc:"Өз есебіңіз: өлшеулеріңіз бойынша n̄, Δn̄, ε-ті өзіңіз есептеп жазыңыз",chk:"Тексеру",okk:"дұрыс",badd:"қате, дұрыс мән",need:"Алдымен өз кестеңізге өлшеулер енгізіңіз.",
+cM:"Модельдің болжамы",cS:"Тәжірибеде өлшенген",cT:"Кестелік мән",cn:"n",ce:"ε, %",cdev:"Кестелік мәннен ауытқу, %",
+cok:"Қорытынды: өлшенген n̄ кестелік мәннен абсолютті қателік шегінде ерекшеленеді – эксперимент нәтижесі кестелік мәнге сәйкес, гипотеза расталды.",
+cbad:"Қорытынды: өлшенген n̄ кестелік мәннен қателік шегінен көп ерекшеленеді. Мүмкін себептері: транспортерді дәл қоймау, сәуленің жуандығы, нормальды қате жүргізу, түсу нүктесінің ығысуы. Өлшеуді қайталаңыз.",
+cno:"Қорытынды жасау үшін өлшенген мәндерді кестеге енгізіңіз.",
+m1:"Алдымен «Тәжірибені бастау» батырмасын басыңыз.",m2:"γ мәнін 0°–90° аралығында санмен енгізіңіз.",ro0:"Сәуле O нүктесіне түсіп тұр. Тәжірибені бастаңыз.",ro1:"γ-ны сәуле өтетін шкаладан оқыңыз (бөлік құны 5°).",ser:"Серия №",
+tbh:"Заттардың сыну көрсеткіштері (кестелік мәндер, λ ≈ 589 нм, ауаға қатысты)",tc1:"Зат",tc2:"Сыну көрсеткіші n",tnm:["Ауа","Мұз","Су","Этил спирті","Кварц (балқытылған)","Глицерин","Акрил шыны","Шыны (қарапайым)","Флинт шыны","Алмаз"],accb:"♿ Ерекше қажеттілік",acct:"Ерекше қажеттілігі бар оқушыға арналған баптаулар",accsz:"Мәтін өлшемі:",acchc:"Жоғары контраст",accrd:"Оқуға жеңіл қаріп және аралық",accbg:"Үлкен батырмалар мен өрістер",accna:"Анимацияны өшіру",accgd:"Қарапайым нұсқаулықты көрсету",accfc:"Бір бөлім режимі (бір уақытта бір бөлім)",accsp:"Дауыстап оқу батырмалары",accrs:"Баптауларды тастау",accpv:"← Алдыңғы",accnx:"Келесі →",accrdb:"🔊 Оқу",spkb:"🔊 Оқу",novoice:"Бұл құрылғыда қазақша дауыс жоқ, орысша дауыспен оқылады.",nospeech:"Бұл браузер дауыстап оқуды қолдамайды.",gdh:"Қарапайым нұсқаулық",gdl:"<li>«9. Интерактивті модель» бөліміне өтіңіз.</li><li>Тізімнен затты таңдаңыз (мысалы, шыны).</li><li>Жүгірткімен түсу бұрышын α таңдаңыз.</li><li>«Тәжірибені бастау» батырмасын басыңыз. Сәуле түседі.</li><li>Шкаладан сыну бұрышы γ-ны оқып, өрісге жазыңыз.</li><li>«Өлшенген мәнді кестеге енгізу» батырмасын басыңыз.</li><li>Басқа α бұрыштарымен 4 рет қайталаңыз (барлығы 5 өлшеу).</li><li>12-бөлімде қорытынды өздігінен шығады.</li>",insh:"Құралдар мен олардың қызметі (атауын басып көріңіз)",insdef:"Модельдегі құралды немесе төмендегі нөмірлі батырманы басыңыз – оның атауы мен қызметі осында көрсетіледі.",mdalt:"Зертханалық үстелдің үстінен көрінісі: лазер, шыны пластина, бұрыш шкаласы, қағаз",lb1:"Лазер",sl2:"Пластина",sl3:"Шкала",lb2:"Шыны пластина",lb3:"Бұрыш шкаласы",lb4:"Ақ қағаз",lb5:"Нормаль",lb6:"Қарындаш",lb7:"Сызғыш",
+in1:"<b>Лазер көрсеткіш</b> – жарық көзі. Жіңішке қызыл сәуле береді; оны O нүктесіне бағыттап, түсу бұрышы α-ны өзгертеміз. Сәулені көзге тікелей бағыттауға болмайды!",
+pl:["Шыны пластина","Су құйылған ыдыс","Акрил пластина","Кварц пластина","Алмаз үлгі"],pf:["Жартылай дөңгелек шыны пластина","Су құйылған жартылай дөңгелек мөлдір ыдыс","Жартылай дөңгелек акрил пластина","Жартылай дөңгелек кварц пластина","Жартылай дөңгелек алмаз үлгі"],sl:["Пластина","Су ыдысы","Пластина","Пластина","Үлгі"],pn:["Шыны – қарапайым (тәж) шыны, n ≈ 1,50.","Су жұқа мөлдір қабырғалы ыдыста тұр; қабырға сәулені айтарлықтай өзгертпейді. Ішінде ауа көпіршіктері болуы мүмкін.","Акрил (органикалық шыны) жеңіл, жылтыр, шыныға жақын, бірақ сәл аз сындырады.","Балқытылған кварц өте таза, мөлдір; сыну көрсеткіші шыныдан сәл төмен.","Алмаздың сыну көрсеткіші өте жоғары, сондықтан сәуле нормальге жақын сынады; қырлары жарқырап тұрады."],in2:"<b>{N}</b> – зерттелетін зат. Сәуле жазық бетке O нүктесінде түсіп, заттың ішінде сынады. Дөңгелек бетке радиус бойымен келетіндіктен, одан шыққанда қайта сынбайды. Әлсіз сызық – бетте шағылған сәуле, оны өлшемейміз.",
+in3:"<b>Бұрыш шкаласы (транспортер)</b> – қағазға басылған шеңбер шкаласы. α және γ бұрыштарын нормальдан бастап өлшейді; бөлік құны 5°. Сыну бұрышы γ – сәуле шкаланы қиып өтетін жердегі мән.",
+in4:"<b>Ақ қағаз</b> – барлық құралдар орналасатын табан. Сәуле жолы анық көрінеді, нормаль мен O нүктесі белгіленеді, қарындашпен нүктелер қойылады.",
+in5:"<b>Нормаль</b> – шекара бетіне O нүктесінде жүргізілген перпендикуляр сызық. α және γ бұрыштары осы сызықтан өлшенеді (беттен емес!).",
+in6:"<b>Қарындаш</b> – сәуле өтетін нүктелерді қағазға белгілеуге және нормальді жүргізуге қажет.",
+in7:"<b>Сызғыш</b> – белгіленген нүктелерді түзу сызықпен қосуға және нормальді дәл жүргізуге қажет.",h12:"12. Автоматты қорытынды",h13:"13. Өзара тексеру және түзету",h14:"14. Қорғау жоспары (1–2 минут)",
+cno:"Тәжірибені орындағаннан кейін қорытынды автоматты түрде көрсетіледі.",
+peer:"Басқа топқа кері байланыс",grpq:"Қай топтың жұмысын тексердіңіз?",grpph:"Топ атауы",
+strong:"Күшті жақтары",strongph:"Мысалы: гипотеза сан арқылы берілген...",
+notes:"Ескертулер (нақты)",notesph:"Мысалы: өлшеу қайталанбаған, C_к ескерілмеген...",
+sugg:"Ұсыныс",suggph:"Қалай түзетуге болады?",
+recv:"Алынған ескерту және енгізілген түзету",recv1:"Бізге айтылған ескерту",recv2:"Не өзгерттік (файлда қай жерде)",recv3:"Неліктен дұрыс? Нәтижеге әсері",
+d1:"Зерттеу сұрағы: неге маңызды, не өлшедік?",d2:"Гипотеза: расталды ма? Дәлел (сан)",d3:"Модель: не болжайды, тәжірибеден айырмасы, себебі"},
+ru:{title:"Лабораторная работа №10: Определение показателя преломления стекла",sub:"8.5.1.9 – определить в эксперименте показатель преломления стекла; 8.5.1.10 – сравнить найденное значение с табличным и оценить результат эксперимента",
+print:"🖨 Печать",pdf:"📄 Сохранить в PDF",
+h1:"1. Исследовательский вопрос",h2:"2. Цель и задачи",h3:"3. Гипотеза",h4:"4. Краткая теория",h5:"5. Независимая, зависимая и постоянные величины",h6:"6. Приборы и схема установки",h7:"7. Правила безопасности (прочитайте до начала работы)",h8:"8. Ход работы",h9:"9. Интерактивная модель",h10:"10. Результат и формулы расчёта",h11:"11. Предсказание модели и значение, измеренное в эксперименте",
+q:"Как изменяется угол преломления в стекле при изменении угла падения света и с какой точностью по отношению sin α / sin γ можно определить показатель преломления стекла?",
+aim:"<b>Цель:</b> изучить преломление света при переходе из воздуха в стекло, экспериментально определить показатель преломления стекла по закону Снеллиуса и сравнить с табличным значением.<br><b>Задачи:</b>",
+tasks:"<li>Рассмотреть закон преломления света и физический смысл показателя преломления (теория).</li><li>Измерить угол преломления не менее чем при 5 значениях угла падения (10°–70°) и записать в таблицу.</li><li>Вычислить sin α, sin γ и n = sin α / sin γ, построить график sin α от sin γ.</li><li>Вычислить погрешности измерений (абсолютную и относительную).</li><li>Сравнить найденное n с табличным значением и оценить результат эксперимента.</li>",
+hyp:"<b>Если</b> увеличивать угол падения света, <b>то</b> угол преломления тоже увеличится (всегда оставаясь меньше угла падения), а отношение sin α / sin γ останется постоянным, n ≈ 1,5, <b>потому что</b> в стекле свет распространяется медленнее, чем в воздухе, и по закону Снеллиуса для двух сред это отношение постоянно.",
+t1:"<b>Преломление света</b> – изменение направления распространения света при переходе через границу двух сред (так как скорость света в средах различна).",
+t2:"<b>Угол падения α</b> – угол между падающим лучом и нормалью; <b>угол преломления γ</b> – угол между преломлённым лучом и нормалью.",
+t3:"<b>Нормаль</b> – перпендикуляр к границе раздела сред, проведённый в точке падения (O).",
+t4:"<b>Показатель преломления n</b> – отношение скорости света в вакууме к скорости света в среде; характеризует оптическую плотность среды: чем больше n, тем сильнее отклоняется луч.",
+t5:"<b>Закон Снеллиуса:</b> падающий луч, преломлённый луч и нормаль лежат в одной плоскости, а отношение синуса угла падения к синусу угла преломления постоянно для данных двух сред. При переходе из воздуха в стекло (n₁ ≈ 1) n = sin α / sin γ.",
+sym:"α – угол падения; γ – угол преломления; n – показатель преломления; c = 3·10⁸ м/с – скорость света в вакууме; v – скорость света в среде.",
+lNorm:"нормаль",lInc:"падающий луч",lRef:"преломлённый луч",lAir:"воздух",lMed:"стекло",
+vc1:"Вид величины",vc2:"Описание",vi_h:"Независимая",vi:"Угол падения α (направление лазера); в дополнительном исследовании – вид вещества.",vd_h:"Зависимая",vd:"Угол преломления γ; вычисляемые по нему sin α / sin γ и n.",vk_h:"Постоянные",vk:"Одна стеклянная пластина; точка падения O; один лазер (свет одного цвета); положение пластины и листа; измерительный прибор (транспортир).",
+ap1:"Лазерная указка",ap2:"Полукруглая стеклянная пластина",ap3:"Транспортир (угловая шкала)",ap4:"Белый лист, нормаль и линия",ap5:"Линейка и карандаш",apset:"Схема установки (вид сверху)",lLaser:"лазер",lPaper:"лист",lBlock:"стекло",lProt:"шкала",
+safety:"<li>Никогда не направляйте лазерный луч в глаза людям; не смотрите и на луч, отражённый от стекла.</li><li>Включайте лазер только на время измерения, по окончании выключайте.</li><li>Берите пластину за края, не кладите у края стола; если разбилась – не собирайте руками, сообщите учителю.</li><li>Остерегайтесь острых концов карандаша и транспортира.</li><li>Не торопитесь на рабочем месте, не играйте с лазером.</li>",
+steps:"<li>Положите белый лист на стол, совместите плоскую грань полукруглой стеклянной пластины с прямой линией; отметьте центр O и проведите в нём нормаль.</li><li>Направьте лазер так, чтобы угол падения α = 10°, луч должен попадать в точку O.</li><li>Отметьте карандашом две точки на луче, вышедшем из стекла; уберите пластину и соедините преломлённый луч с точкой O.</li><li>Измерьте транспортиром угол преломления γ.</li><li>Повторите измерение при α = 20°, 30°, 40°, 50°, 60°; запишите результаты в таблицу.</li><li>Для каждого измерения вычислите sin α, sin γ и n = sin α / sin γ.</li><li>Вычислите n̄, Δn̄ и ε, постройте график sin α от sin γ (наклон графика равен n).</li><li>Сравните n̄ с табличным значением и сделайте вывод.</li>",
+howto:"<b>Работа с моделью:</b> выберите вещество и α → «Начать эксперимент» → считайте угол преломления γ по шкале и впишите в поле → «Внести измеренное значение в таблицу» → измените α и повторите (не менее 5 измерений). Верхняя таблица – предсказание модели (автоматически), нижняя – ваши измерения.",
+mat:"Вещество",alpha:"Угол падения α",bstart:"▶ Начать эксперимент",bin:"γ по шкале, °",benter:"➕ Внести измеренное значение в таблицу",brep:"🔄 Повторить эксперимент (новая серия)",
+mats:["Стекло","Вода","Оргстекло (акрил)","Кварц","Алмаз"],
+tmod:"Автоматическая таблица – предсказание модели",tstu:"Таблица ученика – значения, измеренные в эксперименте",gmod:"График 1: предсказание модели",gstu:"График 2: измеренные в эксперименте значения",
+th:["№","α, °","γ, °","sin α","sin γ","n","Δn"],mean:"Среднее",
+emod:"По модели (автоматически)",estu:"По измерениям ученика (автоматический расчёт)",
+lmean:"Среднее n̄",ldn:"Абсолютная погрешность Δn̄",leps:"Относительная погрешность ε",lk:"Наклон графика k",none:"Нет данных",
+mycalc:"Ваш расчёт: вычислите n̄, Δn̄, ε по своим измерениям и впишите",chk:"Проверить",okk:"верно",badd:"неверно, правильное значение",need:"Сначала внесите измерения в свою таблицу.",
+cM:"Предсказание модели",cS:"Измерено в эксперименте",cT:"Табличное значение",cn:"n",ce:"ε, %",cdev:"Отклонение от табличного, %",
+cok:"Вывод: измеренное n̄ отличается от табличного в пределах абсолютной погрешности – результат эксперимента согласуется с табличным значением, гипотеза подтверждена.",
+cbad:"Вывод: измеренное n̄ отличается от табличного больше погрешности. Возможные причины: неточная установка транспортира, ширина луча, неверно проведённая нормаль, смещение точки падения. Повторите измерения.",
+cno:"Для вывода внесите измеренные значения в таблицу.",
+m1:"Сначала нажмите «Начать эксперимент».",m2:"Введите γ числом от 0° до 90°.",ro0:"Луч падает в точку O. Начните эксперимент.",ro1:"Считайте γ по шкале, вдоль которой идёт луч (цена деления 5°).",ser:"Серия №",
+tbh:"Показатели преломления веществ (табличные значения, λ ≈ 589 нм, относительно воздуха)",tc1:"Вещество",tc2:"Показатель преломления n",tnm:["Воздух","Лёд","Вода","Этиловый спирт","Кварц (плавленый)","Глицерин","Оргстекло (акрил)","Стекло (обычное)","Флинт","Алмаз"],accb:"♿ Особые потребности",acct:"Настройки для ученика с особыми образовательными потребностями",accsz:"Размер текста:",acchc:"Высокая контрастность",accrd:"Удобочитаемый шрифт и интервалы",accbg:"Крупные кнопки и поля",accna:"Отключить анимацию",accgd:"Показать простую инструкцию",accfc:"Режим одного раздела (по одному разделу)",accsp:"Кнопки озвучивания",accrs:"Сбросить настройки",accpv:"← Назад",accnx:"Далее →",accrdb:"🔊 Читать",spkb:"🔊 Читать",novoice:"",nospeech:"Этот браузер не поддерживает озвучивание.",gdh:"Простая инструкция",gdl:"<li>Перейдите к разделу «9. Интерактивная модель».</li><li>Выберите вещество из списка (например, стекло).</li><li>Ползунком выберите угол падения α.</li><li>Нажмите «Начать эксперимент». Луч упадёт на вещество.</li><li>Считайте со шкалы угол преломления γ и впишите его в поле.</li><li>Нажмите «Ввести измеренное значение в таблицу».</li><li>Повторите ещё 4 раза с другими углами α (всего 5 измерений).</li><li>В разделе 12 вывод появится сам.</li>",insh:"Приборы и их назначение (нажмите на название)",insdef:"Нажмите на прибор в модели или на кнопку с номером ниже – здесь появятся его название и назначение.",mdalt:"Вид сверху на лабораторный стол: лазер, стеклянная пластина, шкала углов, бумага",lb1:"Лазер",sl2:"Пластина",sl3:"Шкала",lb2:"Стеклянная пластина",lb3:"Шкала углов",lb4:"Белый лист",lb5:"Нормаль",lb6:"Карандаш",lb7:"Линейка",
+in1:"<b>Лазерная указка</b> – источник света. Даёт тонкий красный луч; мы направляем его в точку O и меняем угол падения α. Нельзя направлять луч в глаза!",
+pl:["Стеклянная пластина","Кювета с водой","Пластина из акрила","Кварцевая пластина","Образец алмаза"],pf:["Полуцилиндрическая стеклянная пластина","Полуцилиндрическая прозрачная кювета с водой","Полуцилиндрическая пластина из оргстекла (акрил)","Полуцилиндрическая кварцевая пластина","Полуцилиндрический образец алмаза"],sl:["Пластина","Кювета","Пластина","Пластина","Образец"],pn:["Стекло – обычное (кронгласс), n ≈ 1,50.","Вода налита в тонкостенную прозрачную кювету; стенки почти не влияют на ход луча. Внутри могут быть пузырьки воздуха.","Оргстекло лёгкое, гладкое, похоже на стекло, но преломляет чуть слабее.","Плавленый кварц очень чистый и прозрачный; показатель преломления немного ниже, чем у стекла.","У алмаза очень большой показатель преломления, поэтому луч преломляется близко к нормали; грани сверкают."],in2:"<b>{N}</b> – исследуемое вещество. Луч падает на плоскую грань в точке O и преломляется внутри вещества. К круглой поверхности он подходит по радиусу, поэтому при выходе не преломляется повторно. Слабая линия – отражённый от грани луч, его не измеряем.",
+in3:"<b>Шкала углов (транспортир)</b> – круговая шкала, напечатанная на бумаге. Измеряет углы α и γ от нормали; цена деления 5°. Угол преломления γ – значение там, где луч пересекает шкалу.",
+in4:"<b>Белый лист</b> – основа, на которой стоят все приборы. На нём хорошо виден ход луча, отмечают точку O и нормаль, ставят карандашом точки.",
+in5:"<b>Нормаль</b> – перпендикуляр к границе раздела, проведённый в точке O. Углы α и γ отсчитывают от этой линии (а не от поверхности!).",
+in6:"<b>Карандаш</b> – нужен, чтобы отмечать на бумаге точки, через которые проходит луч, и проводить нормаль.",
+in7:"<b>Линейка</b> – нужна, чтобы соединять отмеченные точки прямой линией и точно проводить нормаль.",h12:"12. Автоматический вывод",h13:"13. Взаимопроверка и исправление",h14:"14. План защиты (1–2 минуты)",
+cno:"После выполнения эксперимента вывод отобразится автоматически.",
+peer:"Обратная связь другой группе",grpq:"Работу какой группы вы проверили?",grpph:"Название группы",
+strong:"Сильные стороны",strongph:"Например: гипотеза выражена числом...",
+notes:"Замечания (конкретные)",notesph:"Например: измерение не повторено, погрешность прибора не учтена...",
+sugg:"Предложение",suggph:"Как можно исправить?",
+recv:"Полученное замечание и внесённое исправление",recv1:"Замечание, которое нам сделали",recv2:"Что изменили (где в файле)",recv3:"Почему это верно? Влияние на результат",
+d1:"Исследовательский вопрос: почему важен, что измерили?",d2:"Гипотеза: подтвердилась ли? Доказательство (число)",d3:"Модель: что предсказывает, отличие от эксперимента, причина"},
+en:{title:"Laboratory Work No. 10: Determining the Refractive Index of Glass",sub:"8.5.1.9 – determine the refractive index of glass experimentally; 8.5.1.10 – compare the value found with the table value and evaluate the result",
+print:"🖨 Print",pdf:"📄 Save as PDF",
+h1:"1. Research question",h2:"2. Aim and objectives",h3:"3. Hypothesis",h4:"4. Brief theory",h5:"5. Independent, dependent and controlled variables",h6:"6. Apparatus and setup diagram",h7:"7. Safety rules (read before starting)",h8:"8. Procedure",h9:"9. Interactive model",h10:"10. Result and calculation formulas",h11:"11. Model prediction vs. value measured in the experiment",
+q:"How does the angle of refraction in glass change when the angle of incidence of light changes, and how accurately can the refractive index of glass be found from the ratio sin α / sin γ?",
+aim:"<b>Aim:</b> to study the refraction of light passing from air into glass, determine the refractive index of glass experimentally using Snell's law and compare it with the table value.<br><b>Objectives:</b>",
+tasks:"<li>Review the law of refraction and the physical meaning of the refractive index (theory).</li><li>Measure the angle of refraction for at least 5 angles of incidence (10°–70°) and record them in a table.</li><li>Calculate sin α, sin γ and n = sin α / sin γ, and plot sin α against sin γ.</li><li>Calculate the measurement errors (absolute and relative).</li><li>Compare the n found with the table value and evaluate the experimental result.</li>",
+hyp:"<b>If</b> the angle of incidence of light is increased, <b>then</b> the angle of refraction also increases (always staying smaller than the angle of incidence) while the ratio sin α / sin γ stays constant, giving n ≈ 1.5, <b>because</b> light travels slower in glass than in air and, by Snell's law, this ratio is constant for two given media.",
+t1:"<b>Refraction of light</b> is the change in the direction of light when it crosses the boundary between two media (because the speed of light differs in the media).",
+t2:"<b>Angle of incidence α</b> is the angle between the incident ray and the normal; <b>angle of refraction γ</b> is the angle between the refracted ray and the normal.",
+t3:"<b>The normal</b> is the perpendicular to the boundary between the media drawn at the point of incidence (O).",
+t4:"<b>Refractive index n</b> is the ratio of the speed of light in vacuum to its speed in the medium; it shows the optical density of the medium: the larger n is, the more the ray bends.",
+t5:"<b>Snell's law:</b> the incident ray, the refracted ray and the normal lie in one plane, and the ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant for two given media. For air to glass (n₁ ≈ 1), n = sin α / sin γ.",
+sym:"α – angle of incidence; γ – angle of refraction; n – refractive index; c = 3·10⁸ m/s – speed of light in vacuum; v – speed of light in the medium.",
+lNorm:"normal",lInc:"incident ray",lRef:"refracted ray",lAir:"air",lMed:"glass",
+vc1:"Type",vc2:"Description",vi_h:"Independent",vi:"Angle of incidence α (laser direction); in the extra study – the type of material.",vd_h:"Dependent",vd:"Angle of refraction γ; sin α / sin γ and n calculated from it.",vk_h:"Controlled",vk:"The same glass block; point of incidence O; one laser (one colour of light); position of block and paper; the measuring tool (protractor).",
+ap1:"Laser pointer",ap2:"Semicircular glass block",ap3:"Protractor (angle scale)",ap4:"White paper, normal and line",ap5:"Ruler and pencil",apset:"Setup diagram (top view)",lLaser:"laser",lPaper:"paper",lBlock:"glass block",lProt:"scale",
+safety:"<li>Never point the laser beam at anyone's eyes; do not look at the beam reflected from the glass either.</li><li>Switch the laser on only while measuring and off when finished.</li><li>Hold the block by its edges and keep it away from the table edge; if it breaks, do not pick it up by hand – tell the teacher.</li><li>Beware of the sharp tips of the pencil and protractor.</li><li>Do not rush at the workplace and do not play with the laser.</li>",
+steps:"<li>Place the white paper on the table and align the flat side of the semicircular glass block with a straight line; mark the centre O and draw the normal at O.</li><li>Aim the laser so that the angle of incidence is α = 10°, with the beam hitting point O.</li><li>Mark two points on the ray leaving the glass with a pencil, remove the block and join the refracted ray to O.</li><li>Measure the angle of refraction γ with a protractor.</li><li>Repeat for α = 20°, 30°, 40°, 50°, 60° and record the results in the table.</li><li>For every measurement calculate sin α, sin γ and n = sin α / sin γ.</li><li>Calculate n̄, Δn̄ and ε and plot sin α against sin γ (the slope of the graph equals n).</li><li>Compare n̄ with the table value and draw a conclusion.</li>",
+howto:"<b>Using the model:</b> choose a material and α → “Start experiment” → read the refraction angle γ on the scale and type it in → “Enter measured value into table” → change α and repeat (at least 5 measurements). The upper table is the model prediction (automatic); the lower one holds your own measurements.",
+mat:"Material",alpha:"Angle of incidence α",bstart:"▶ Start experiment",bin:"γ read from scale, °",benter:"➕ Enter measured value into table",brep:"🔄 Repeat experiment (new series)",
+mats:["Glass","Water","Acrylic glass","Quartz","Diamond"],
+tmod:"Automatic table – model prediction",tstu:"Student table – values measured in the experiment",gmod:"Graph 1: model prediction",gstu:"Graph 2: values measured in the experiment",
+th:["No.","α, °","γ, °","sin α","sin γ","n","Δn"],mean:"Mean",
+emod:"From the model (automatic)",estu:"From the student's data (automatic calculation)",
+lmean:"Mean n̄",ldn:"Absolute error Δn̄",leps:"Relative error ε",lk:"Graph slope k",none:"No data",
+mycalc:"Your own calculation: work out n̄, Δn̄, ε from your measurements and type them in",chk:"Check",okk:"correct",badd:"incorrect, correct value",need:"First enter measurements into your table.",
+cM:"Model prediction",cS:"Measured in experiment",cT:"Table value",cn:"n",ce:"ε, %",cdev:"Deviation from table value, %",
+cok:"Conclusion: the measured n̄ differs from the table value within the absolute error – the experimental result agrees with the table value and the hypothesis is confirmed.",
+cbad:"Conclusion: the measured n̄ differs from the table value by more than the error. Possible causes: imprecise protractor placement, beam width, a wrongly drawn normal, a shifted point of incidence. Repeat the measurements.",
+cno:"Enter measured values into the table to get a conclusion.",
+m1:"Press “Start experiment” first.",m2:"Enter γ as a number between 0° and 90°.",ro0:"The ray hits point O. Start the experiment.",ro1:"Read γ on the scale along which the ray goes (division = 5°).",ser:"Series No.",
+tbh:"Refractive indices of substances (table values, λ ≈ 589 nm, relative to air)",tc1:"Substance",tc2:"Refractive index n",tnm:["Air","Ice","Water","Ethyl alcohol","Quartz (fused)","Glycerin","Acrylic glass","Glass (ordinary)","Flint glass","Diamond"],accb:"♿ Special needs",acct:"Settings for a student with special educational needs",accsz:"Text size:",acchc:"High contrast",accrd:"Easy-to-read font and spacing",accbg:"Large buttons and fields",accna:"Turn off animation",accgd:"Show simple guide",accfc:"One-section mode (one section at a time)",accsp:"Read-aloud buttons",accrs:"Reset settings",accpv:"← Previous",accnx:"Next →",accrdb:"🔊 Read",spkb:"🔊 Read",novoice:"",nospeech:"This browser does not support read-aloud.",gdh:"Simple guide",gdl:"<li>Go to section 9, the interactive model.</li><li>Pick a substance from the list (for example, glass).</li><li>Choose the angle of incidence α with the slider.</li><li>Press Start the experiment. The ray hits the substance.</li><li>Read the refraction angle γ from the scale and type it in the field.</li><li>Press the button that adds the measured value to the table.</li><li>Repeat 4 more times with other angles α (5 measurements in total).</li><li>The conclusion appears by itself in section 12.</li>",insh:"Instruments and what they do (click a name)",insdef:"Click an instrument in the model or a numbered button below – its name and function will appear here.",mdalt:"Top view of the lab bench: laser, glass block, angle scale, paper",lb1:"Laser",sl2:"Glass block",sl3:"Scale",lb2:"Glass block",lb3:"Angle scale",lb4:"White paper",lb5:"Normal",lb6:"Pencil",lb7:"Ruler",
+in1:"<b>Laser pointer</b> – the light source. It gives a thin red beam; we aim it at point O and change the angle of incidence α. Never point the beam at anyone's eyes!",
+pl:["Glass block","Water cell","Acrylic block","Quartz block","Diamond sample"],pf:["Semicircular glass block","Semicircular clear cell filled with water","Semicircular acrylic block","Semicircular quartz block","Semicircular diamond sample"],sl:["Glass block","Water cell","Acrylic","Quartz","Diamond"],pn:["Glass is ordinary crown glass, n ≈ 1.50.","Water sits in a thin clear-walled cell; the walls hardly change the beam. Small air bubbles may be present.","Acrylic is light, smooth and similar to glass but bends light slightly less.","Fused quartz is very pure and clear; its refractive index is a little lower than glass.","Diamond has a very high refractive index, so the beam bends close to the normal; its facets sparkle."],in2:"<b>{N}</b> – the material under study. The beam hits the flat face at O and refracts inside the material. It meets the curved surface along a radius, so it does not refract again when leaving. The faint line is the beam reflected from the flat face; we do not measure it.",
+in3:"<b>Angle scale (protractor)</b> – a circular scale printed on the paper. It measures α and γ from the normal; one division is 5°. The refraction angle γ is the value where the beam crosses the scale.",
+in4:"<b>White paper</b> – the base for all instruments. The beam path is easy to see on it, point O and the normal are marked, and points are put down with the pencil.",
+in5:"<b>Normal</b> – the line perpendicular to the boundary at point O. Angles α and γ are measured from this line (not from the surface!).",
+in6:"<b>Pencil</b> – used to mark on the paper the points the beam passes through and to draw the normal.",
+in7:"<b>Ruler</b> – used to join the marked points with a straight line and to draw the normal accurately.",h12:"12. Automatic conclusion",h13:"13. Peer review and correction",h14:"14. Defence plan (1–2 minutes)",
+cno:"After you complete the experiment, the conclusion will appear automatically.",
+peer:"Feedback to another group",grpq:"Whose work did you review?",grpph:"Group name",
+strong:"Strengths",strongph:"E.g. the hypothesis is stated with a number...",
+notes:"Remarks (specific)",notesph:"E.g. measurement not repeated, instrument error ignored...",
+sugg:"Suggestion",suggph:"How can it be fixed?",
+recv:"Remark received and correction made",recv1:"The remark we received",recv2:"What we changed (where in the file)",recv3:"Why is it correct? Effect on the result",
+d1:"Research question: why does it matter, what did we measure?",d2:"Hypothesis: confirmed? Evidence (number)",d3:"Model: what it predicts, difference from experiment, reason"}};
+const NV=[1.0003, 1.31, 1.33, 1.36, 1.46, 1.47, 1.49, 1.5, 1.62, 2.42];
+const S={a:30,m:0,ser:1,on:false,b:0,mod:[],stu:[]};let lang='kk',anim=0;
+const tt=()=>T[lang],f=(x,d=3)=>isFinite(x)?x.toFixed(d).replace('.',','):'—',num=v=>parseFloat(String(v).replace(',','.'));
+const sn=d=>Math.sin(rad(d));
+function setLang(l){lang=l;document.documentElement.lang=l;
+ document.querySelectorAll('[data-t]').forEach(e=>{e.innerHTML=T[l][e.dataset.t]});
+ document.querySelectorAll('[data-p]').forEach(e=>{e.placeholder=T[l][e.dataset.p]});
+ document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===l));
+ $('mat').innerHTML=T[l].mats.map((n,i)=>`<option value="${i}">${n}</option>`).join('');$('mat').value=S.m;
+ const h=T[l].th.map(x=>`<th>${x}</th>`).join('');$('hm').innerHTML=h;$('hs').innerHTML=h+'<th></th>';
+ $('ntab').innerHTML=T[l].tnm.map((n,i)=>`<tr><td class="l">${n}</td><td>${f(NV[i],NV[i]<1.01?4:2)}</td></tr>`).join('');
+ insUI();render();}
+function upsert(arr,a,b){const i=arr.findIndex(r=>r.a===a);if(i>=0)arr[i].b=b;else arr.push({a,b});arr.sort((x,y)=>x.a-y.a)}
+function st(rows){if(!rows.length)return null;const ns=rows.map(r=>sn(r.a)/sn(r.b)),m=ns.reduce((p,c)=>p+c,0)/ns.length,d=ns.map(n=>Math.abs(n-m)),dn=d.reduce((p,c)=>p+c,0)/d.length;
+ const k=rows.reduce((p,r)=>p+sn(r.a)*sn(r.b),0)/rows.reduce((p,r)=>p+sn(r.b)**2,0);return{ns,m,d,dn,eps:dn/m*100,k}}
+let selIns=0;
+const MS=[{c:'#9fd6e2',o:[.8,.45,.75],e:'#2f8a8a'},{c:'#6fb4f2',o:[.7,.55,.75],e:'#6f93b0'},{c:'#e3f6ea',o:[.6,.35,.55],e:'#7fbf9d'},{c:'#d6d7f8',o:[.35,.15,.32],e:'#8d92d8'},{c:'#bfeaff',o:[.75,.4,.85],e:'#2b9bd6'}];
+function drawModel(p=1){
+ const ox=260,oy=228,Rg=114,Rr=142,Rd=156,D=146,LB=56;
+ const a=rad(S.a),sa=Math.sin(a),ca=Math.cos(a),ms=MS[S.m],t=tt();
+ const hi=n=>selIns===n?' filter="url(#gl_hi)"':'';
+ const tag=(n,x,y,txt,side='r')=>`<circle cx="${x}" cy="${y}" r="8" fill="${selIns===n?'#ff9500':'#1d4f91'}" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y+3.6}" font-size="10" font-weight="700" text-anchor="middle" fill="${selIns===n?'#000':'#fff'}">${n}</text><text x="${side==='r'?x+13:x-13}" y="${y+4}" font-size="11" font-weight="600" fill="#12263f" text-anchor="${side==='r'?'start':'end'}" paint-order="stroke" stroke="#fff" stroke-width="3" stroke-linejoin="round">${txt}</text>`;
+ const beam=(x1,y1,x2,y2,k=1)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ff2d1f" stroke-opacity="${.4*k}" stroke-width="8" stroke-linecap="round" filter="url(#gl_glow)"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ff3b2f" stroke-opacity="${k}" stroke-width="2.4" stroke-linecap="round"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ffe6e0" stroke-opacity="${k}" stroke-width=".9" stroke-linecap="round"/>`;
+ let h=`<defs>
+ <pattern id="gl_wood" width="40" height="9" patternUnits="userSpaceOnUse"><rect width="40" height="9" fill="#a06f3f"/><path d="M0 2Q10 0 20 2T40 2M0 6Q12 8 24 6T40 6" stroke="#7a4f27" stroke-width=".8" fill="none" opacity=".55"/></pattern>
+ <linearGradient id="gl_glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${ms.c}" stop-opacity="${ms.o[0]}"/><stop offset=".5" stop-color="${ms.c}" stop-opacity="${ms.o[1]}"/><stop offset="1" stop-color="${ms.c}" stop-opacity="${ms.o[2]}"/></linearGradient>
+ <linearGradient id="gl_metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5b6370"/><stop offset=".35" stop-color="#eceff3"/><stop offset=".7" stop-color="#a3aab5"/><stop offset="1" stop-color="#4a515c"/></linearGradient>
+ <linearGradient id="gl_rule" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6e3a1"/><stop offset="1" stop-color="#e8c978"/></linearGradient>
+ <radialGradient id="gl_disc" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffef6"/><stop offset="1" stop-color="#fbf4d3"/></radialGradient>
+ <filter id="gl_glow" filterUnits="userSpaceOnUse" x="0" y="0" width="520" height="420"><feGaussianBlur stdDeviation="2.6"/></filter>
+ <filter id="gl_blur" filterUnits="userSpaceOnUse" x="0" y="0" width="520" height="420"><feGaussianBlur stdDeviation="3"/></filter>
+ <filter id="gl_sh" filterUnits="userSpaceOnUse" x="0" y="0" width="520" height="420"><feDropShadow dx="2" dy="3" stdDeviation="2.2" flood-color="#000" flood-opacity=".35"/></filter>
+ <filter id="gl_hi" filterUnits="userSpaceOnUse" x="-20" y="-20" width="560" height="460"><feMorphology in="SourceAlpha" operator="dilate" radius="2" result="d"/><feGaussianBlur in="d" stdDeviation="2.5" result="bl"/><feFlood flood-color="#ff9500"/><feComposite in2="bl" operator="in" result="g"/><feComposite in="g" in2="SourceAlpha" operator="out" result="ring"/><feMerge><feMergeNode in="ring"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ </defs>
+ <rect width="520" height="420" fill="url(#gl_wood)"/>
+ <g data-ins="4"${hi(4)}><rect x="14" y="12" width="492" height="396" rx="3" fill="#fdfdfb" stroke="#d6d6cc" filter="url(#gl_sh)"/>${tag(4,34,32,t.lb4)}</g>`;
+ /* angle scale (printed disc) */
+ let sc=`<circle cx="${ox}" cy="${oy}" r="${Rd}" fill="url(#gl_disc)" stroke="#b9ab6a" stroke-width="1.2"/><circle cx="${ox}" cy="${oy}" r="${Rr}" fill="none" stroke="#6b6240" stroke-width=".9"/><line x1="${ox-Rr}" y1="${oy}" x2="${ox+Rr}" y2="${oy}" stroke="#3a3a3a" stroke-width="1"/>`;
+ for(const sx of[-1,1])for(const sy of[-1,1])for(let d=0;d<=90;d+=5){const s_=Math.sin(rad(d)),c_=Math.cos(rad(d)),n=d%10?5:10;
+  sc+=`<line x1="${ox+sx*Rr*s_}" y1="${oy+sy*Rr*c_}" x2="${ox+sx*(Rr-n)*s_}" y2="${oy+sy*(Rr-n)*c_}" stroke="#4a4630" stroke-width="${d%10?.8:1.1}"/>`;
+  if(d%10==0&&d>0&&d<90)sc+=`<text x="${ox+sx*(Rr-18)*s_}" y="${oy+sy*(Rr-18)*c_+3}" font-size="9" text-anchor="middle" fill="#3b3b3b" paint-order="stroke" stroke="#fdf8dc" stroke-width="2">${d}</text>`}
+ sc+=`<text x="${ox+6}" y="${oy-Rr+22}" font-size="8" fill="#555">0°</text><text x="${ox+6}" y="${oy+Rr-15}" font-size="8" fill="#555">0°</text><text x="${ox-Rr+3}" y="${oy-5}" font-size="8" fill="#555">90°</text><text x="${ox+Rr-23}" y="${oy-5}" font-size="8" fill="#555">90°</text>`;
+ h+=`<g data-ins="3"${hi(3)}>${sc}${tag(3,24,oy+66,t.sl3)}</g>`;
+ /* normal (pencil line) */
+ h+=`<g data-ins="5"${hi(5)}><line x1="${ox}" y1="${oy-Rd}" x2="${ox}" y2="${oy+Rd}" stroke="#444" stroke-width="1.2" stroke-dasharray="6 4"/><line x1="${ox}" y1="${oy-Rd}" x2="${ox}" y2="${oy+Rd}" stroke="transparent" stroke-width="14"/>${tag(5,ox+14,oy+Rd+10,t.lb5)}</g>`;
+ /* glass block */
+ const pl=`M${ox-Rg} ${oy}H${ox+Rg}A${Rg} ${Rg} 0 0 1 ${ox-Rg} ${oy}Z`;
+ const hl=`<path d="M${ox-92} ${oy+48}A104 104 0 0 0 ${ox-42} ${oy+94}" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="3.5" stroke-linecap="round"/>`;
+ const streak=`<g clip-path="url(#gl_clip)"><polygon points="${ox-70},${oy} ${ox-48},${oy} ${ox-8},${oy+Rg} ${ox-34},${oy+Rg}" fill="#fff" opacity=".22"/><polygon points="${ox+30},${oy} ${ox+38},${oy} ${ox+62},${oy+Rg} ${ox+52},${oy+Rg}" fill="#fff" opacity=".16"/></g>`;
+ let bd=`<clipPath id="gl_clip"><path d="${pl}"/></clipPath><clipPath id="gl_clipout"><path clip-rule="evenodd" d="M0 0H520V420H0Z${pl}"/></clipPath><g clip-path="url(#gl_clipout)"><path d="${pl}" transform="translate(4 6)" fill="#000" opacity=".25" filter="url(#gl_blur)"/></g>`;
+ if(S.m===1){ /* water in a clear semicircular cell */
+  const wr=Rg-5,wp=`M${ox-wr} ${oy+4}H${ox+wr}A${wr} ${wr} 0 0 1 ${ox-wr} ${oy+4}Z`;
+  bd+=`<path d="${pl}" fill="#e8f2f8" fill-opacity=".35" stroke="#7d9fba" stroke-width="3.5"/><path d="${wp}" fill="url(#gl_glass)"/>
+  <rect x="${ox-Rg}" y="${oy}" width="${2*Rg}" height="4" fill="#cfe2ee" stroke="#7d9fba" stroke-width=".8"/>
+  <path d="M${ox-80} ${oy+22}q20 -5 40 0t40 0t40 0" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2"/><path d="M${ox-60} ${oy+36}q15 -4 30 0t30 0" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  <circle cx="${ox-62}" cy="${oy+88}" r="2.6" fill="#fff" fill-opacity=".45" stroke="#fff" stroke-opacity=".85"/><circle cx="${ox-48}" cy="${oy+97}" r="1.7" fill="#fff" fill-opacity=".45" stroke="#fff" stroke-opacity=".85"/><circle cx="${ox+34}" cy="${oy+101}" r="2.2" fill="#fff" fill-opacity=".45" stroke="#fff" stroke-opacity=".85"/>
+  <path d="M${ox-Rg+7} ${oy+5}H${ox+Rg-7}A${Rg-7} ${Rg-7} 0 0 1 ${ox-Rg+7} ${oy+5}Z" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.2"/>${hl}`;
+ }else if(S.m===4){ /* diamond with facets and sparkles */
+  const P=[-95,-57,-19,19,57,95].map(x=>[ox+x,oy]),A=[0,1,2,3,4,5,6].map(k=>{const f=rad(18+k*24);return[ox+Rg*Math.cos(f),oy+Rg*Math.sin(f)]});
+  let fc='';P.forEach((q,k)=>{fc+=`<polygon points="${q[0]},${q[1]} ${A[k][0]},${A[k][1]} ${A[k+1][0]},${A[k+1][1]}" fill="#fff" fill-opacity="${k%2?.06:.2}" stroke="#fff" stroke-opacity=".6" stroke-width=".8"/>`;});
+  const st=(x,y,r)=>`<path d="M${x} ${y-r}L${x+r*.22} ${y-r*.22}L${x+r} ${y}L${x+r*.22} ${y+r*.22}L${x} ${y+r}L${x-r*.22} ${y+r*.22}L${x-r} ${y}L${x-r*.22} ${y-r*.22}Z" fill="#fff"/>`;
+  bd+=`<path d="${pl}" fill="url(#gl_glass)" stroke="${ms.e}" stroke-width="2.2"/><g clip-path="url(#gl_clip)">${fc}</g>${st(ox-72,oy+54,8)}${st(ox+62,oy+86,6)}${st(ox+86,oy+28,5)}<line x1="${ox-Rg+10}" y1="${oy+1.5}" x2="${ox+Rg-10}" y2="${oy+1.5}" stroke="#fff" stroke-opacity=".9" stroke-width="1.4"/>`;
+ }else if(S.m===3){ /* fused quartz: very clear */
+  bd+=`<path d="${pl}" fill="url(#gl_glass)" stroke="${ms.e}" stroke-width="1.6"/>${streak}<path d="M${ox-Rg+6} ${oy+3}H${ox+Rg-6}A${Rg-6} ${Rg-6} 0 0 1 ${ox-Rg+6} ${oy+3}Z" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.2"/>${hl}`;
+ }else if(S.m===2){ /* acrylic: polished, slightly milky */
+  bd+=`<path d="${pl}" fill="url(#gl_glass)" stroke="${ms.e}" stroke-width="2.6"/>${streak}<path d="M${ox-Rg+5} ${oy+4}H${ox+Rg-5}A${Rg-5} ${Rg-5} 0 0 1 ${ox-Rg+5} ${oy+4}Z" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.6"/><line x1="${ox-Rg+6}" y1="${oy+1.5}" x2="${ox+Rg-6}" y2="${oy+1.5}" stroke="#fff" stroke-opacity=".95" stroke-width="1.8"/>${hl}`;
+ }else{ /* ordinary glass */
+  bd+=`<path d="${pl}" fill="url(#gl_glass)" stroke="${ms.e}" stroke-width="2"/><path d="M${ox-Rg+8} ${oy+3}H${ox+Rg-8}A${Rg-8} ${Rg-8} 0 0 1 ${ox-Rg+8} ${oy+3}Z" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.4"/>${hl}<line x1="${ox-Rg+10}" y1="${oy+1.5}" x2="${ox+Rg-10}" y2="${oy+1.5}" stroke="#fff" stroke-opacity=".6" stroke-width="1"/>`;
+ }
+ h+=`<g data-ins="2"${hi(2)}>${bd}${tag(2,ox-92,oy+50,t.sl[S.m])}<text x="${ox-74}" y="${oy+80}" font-size="11" font-style="italic" fill="${S.m===4?'#0b4a6e':'#16424a'}" paint-order="stroke" stroke="#fff" stroke-opacity=".6" stroke-width="2.5">${t.mats[S.m]}</text></g>`;
+ /* ruler */
+ let ru=`<rect x="0" y="0" width="34" height="300" rx="2" fill="url(#gl_rule)" stroke="#9a7b2c"/>`;
+ for(let i=0;i<=30;i++){ru+=`<line x1="0" y1="${i*10}" x2="${i%5?5:10}" y2="${i*10}" stroke="#5c4510" stroke-width=".8"/>`;if(i%5==0&&i>0&&i<30)ru+=`<text x="13" y="${i*10+3}" font-size="8" fill="#4a3808">${i}</text>`}
+ h+=`<g data-ins="7"${hi(7)}><g filter="url(#gl_sh)"><g transform="translate(452 70)">${ru}</g></g>${tag(7,480,50,t.lb7,'l')}</g>`;
+ /* pencil */
+ h+=`<g data-ins="6"${hi(6)}><g filter="url(#gl_sh)"><g transform="translate(26 392) rotate(-14)"><rect x="-15" y="-4.5" width="13" height="9" rx="2" fill="#e8809a"/><rect x="-2" y="-4.5" width="5" height="9" fill="#b9bec6"/><rect x="3" y="-4.5" width="82" height="9" fill="#f2c230" stroke="#a67c00" stroke-width=".6"/><line x1="3" y1="0" x2="85" y2="0" stroke="#c99a10" stroke-width=".8"/><polygon points="85,-4.5 105,0 85,4.5" fill="#ebcfa5"/><polygon points="99,-1.3 105,0 99,1.3" fill="#2b2b2b"/></g></g>${tag(6,40,350,t.lb6)}</g>`;
+ /* incident beam + laser */
+ const lx=ox-D*sa,ly=oy-D*ca;
+ h+=beam(lx,ly,ox,oy);
+ if(S.on){const b=rad(S.b),sb=Math.sin(b),cb=Math.cos(b),L=Rr*p;
+  h+=beam(ox,oy,ox+L*sb,oy+L*cb);
+  if(p>=1)h+=`<circle cx="${ox+Rr*sb}" cy="${oy+Rr*cb}" r="6" fill="#ff3b2f" opacity=".5" filter="url(#gl_glow)"/><circle cx="${ox+Rr*sb}" cy="${oy+Rr*cb}" r="2.6" fill="#ff5a4d"/>`;
+  h+=`<line x1="${ox}" y1="${oy}" x2="${ox+Rr*sa}" y2="${oy-Rr*ca}" stroke="#ff2d1f" stroke-opacity=".28" stroke-width="1.6" stroke-linecap="round"/>`;
+  if(p>=1)h+=`<path d="M${ox} ${oy+46}A46 46 0 0 0 ${ox+46*sb} ${oy+46*cb}" fill="none" stroke="#222" stroke-width="1.2"/><text x="${ox+64*Math.sin(b/2)}" y="${oy+64*Math.cos(b/2)+5}" font-size="15" font-style="italic" fill="#111" paint-order="stroke" stroke="#fff" stroke-width="2.5">\u03b3</text>`}
+ else h+=`<line x1="${ox}" y1="${oy}" x2="${ox+Rr*sa}" y2="${oy-Rr*ca}" stroke="#ff2d1f" stroke-opacity=".28" stroke-width="1.6" stroke-linecap="round"/>`;
+ h+=`<path d="M${ox} ${oy-46}A46 46 0 0 0 ${ox-46*sa} ${oy-46*ca}" fill="none" stroke="#222" stroke-width="1.2"/><text x="${ox-64*Math.sin(a/2)-6}" y="${oy-64*Math.cos(a/2)+4}" font-size="15" font-style="italic" fill="#111" paint-order="stroke" stroke="#fff" stroke-width="2.5">\u03b1</text>`;
+ const lm=D+LB/2,px=-ca,py=sa,lpx=ox-lm*sa+22*px,lpy=oy-lm*ca+22*py;
+ h+=`<g data-ins="1"${hi(1)}><g filter="url(#gl_sh)"><g transform="translate(${ox} ${oy}) rotate(${-S.a})"><rect x="-8" y="${-(D+LB)}" width="16" height="6" rx="2" fill="#374151"/><rect x="-8" y="${-(D+LB-6)}" width="16" height="${LB-6-34}" fill="#1f2937"/>${[0,1,2,3].map(k=>`<line x1="-8" y1="${-(D+LB-9)+k*4}" x2="8" y2="${-(D+LB-9)+k*4}" stroke="#4b5563" stroke-width=".8"/>`).join('')}<rect x="-7" y="${-(D+34)}" width="14" height="26" fill="url(#gl_metal)"/><circle cx="0" cy="${-(D+22)}" r="3.2" fill="#ef4444" stroke="#7f1d1d"/><rect x="-5.5" y="${-(D+8)}" width="11" height="8" fill="#374151"/><circle cx="0" cy="${-D}" r="3" fill="#fecaca" stroke="#b91c1c" stroke-width=".8"/></g></g><circle cx="${lx}" cy="${ly}" r="6" fill="#ff3b2f" opacity=".6" filter="url(#gl_glow)"/>${tag(1,lpx,lpy,t.lb1,ca>.5?'l':'r')}</g>`;
+ h+=`<circle cx="${ox}" cy="${oy}" r="3" fill="#000"/><text x="${ox-18}" y="${oy+16}" font-size="13" font-weight="700" fill="#111" paint-order="stroke" stroke="#fff" stroke-width="3">O</text><text x="${ox+78}" y="${oy-30}" font-size="11" font-style="italic" fill="#555" paint-order="stroke" stroke="#fff" stroke-width="3">${t.lAir}</text>`;
+ const m=$('model');m.setAttribute('aria-label',t.mdalt);m.innerHTML=h;}
+$('model').addEventListener('click',e=>{const g=e.target.closest('[data-ins]');if(g){const n=+g.dataset.ins;selIns=selIns===n?0:n;insUI();drawModel(1)}});
+function insUI(){const t=tt();
+ $('inslist').innerHTML=[1,2,3,4,5,6,7].map(n=>`<button type="button" class="sec${selIns===n?' on':''}" data-i="${n}" aria-pressed="${selIns===n}">${n}. ${n==2?t.pl[S.m]:t['lb'+n]}</button>`).join('');
+ $('inslist').querySelectorAll('button').forEach(b=>b.onclick=()=>{const n=+b.dataset.i;selIns=selIns===n?0:n;insUI();drawModel(1)});
+ $('insinfo').innerHTML=selIns===2?t.in2.replace('{N}',t.pf[S.m])+' '+t.pn[S.m]:selIns?t['in'+selIns]:t.insdef}
+function go(){const t0=performance.now();cancelAnimationFrame(anim);const step=t=>{const p=window.NOANIM?1:Math.min(1,(t-t0)/700);drawModel(p);if(p<1)anim=requestAnimationFrame(step)};anim=requestAnimationFrame(step)}
+function tbl(id,rows,s,del){let h='';rows.forEach((r,i)=>{h+=`<tr><td>${i+1}</td><td>${r.a}</td><td>${f(r.b,1)}</td><td>${f(sn(r.a))}</td><td>${f(sn(r.b))}</td><td>${f(s.ns[i])}</td><td>${f(s.d[i])}</td>${del?`<td class="noprint"><button class="red" style="padding:1px 6px" onclick="delStu(${i})">✕</button></td>`:''}</tr>`});
+ if(s)h+=`<tr class="sum"><td colspan="5">${tt().mean} (N = ${rows.length})</td><td>${f(s.m)}</td><td>${f(s.dn)}</td>${del?'<td class="noprint"></td>':''}</tr>`;$(id).innerHTML=h}
+function delStu(i){S.stu.splice(i,1);render()}
+function graph(id,rows,k,col,dash){const x0=40,y0=210,sx=240,sy=190;let h='<rect width="300" height="250" fill="#fff"/>';
+ for(let i=0;i<=5;i++){const v=i/5,X=x0+v*sx,Y=y0-v*sy;h+=`<line x1="${X}" y1="20" x2="${X}" y2="${y0}" stroke="#e3e8f0"/><line x1="${x0}" y1="${Y}" x2="${x0+sx}" y2="${Y}" stroke="#e3e8f0"/><text x="${X}" y="224" font-size="10" text-anchor="middle">${v.toFixed(1).replace('.',',')}</text><text x="34" y="${Y+3}" font-size="10" text-anchor="end">${v.toFixed(1).replace('.',',')}</text>`}
+ h+=`<line x1="${x0}" y1="${y0}" x2="${x0+sx}" y2="${y0}" stroke="#222"/><line x1="${x0}" y1="20" x2="${x0}" y2="${y0}" stroke="#222"/><text x="160" y="242" font-size="12" text-anchor="middle" font-style="italic">sin γ</text><text x="12" y="115" font-size="12" font-style="italic" transform="rotate(-90 12 115)">sin α</text>`;
+ if(k){const x=Math.min(1,1/k);h+=`<line x1="${x0}" y1="${y0}" x2="${x0+x*sx}" y2="${y0-k*x*sy}" stroke="${col}" stroke-width="1.5" ${dash?'stroke-dasharray="5 4"':''}/><text x="${x0+8}" y="34" font-size="12" fill="${col}">k = n ≈ ${f(k,2)}</text>`}
+ rows.forEach(r=>{h+=`<circle cx="${x0+sn(r.b)*sx}" cy="${y0-sn(r.a)*sy}" r="4" fill="${col}"/>`});$(id).innerHTML=h}
+function card(s){const t=tt();if(!s)return t.none;return`${t.lmean} = <b>${f(s.m)}</b><br>${t.ldn} = <b>${f(s.dn)}</b><br>${t.leps} = <b>${f(s.eps,2)} %</b><br>${t.lk} = <b>${f(s.k)}</b><br><i>n = ${f(s.m)} ± ${f(s.dn)}</i>`}
+function bar(sm,ss){const X=n=>40+(n-1)/1.6*520;let h='<line x1="40" y1="60" x2="560" y2="60" stroke="#222"/>';
+ for(let n=1;n<=2.601;n+=.2)h+=`<line x1="${X(n)}" y1="56" x2="${X(n)}" y2="64" stroke="#222"/><text x="${X(n)}" y="78" text-anchor="middle">${n.toFixed(1).replace('.',',')}</text>`;
+ const nt=MAT[S.m];h+=`<line x1="${X(nt)}" y1="15" x2="${X(nt)}" y2="60" stroke="#17803d" stroke-width="3"/><text x="${X(nt)}" y="12" text-anchor="middle" fill="#17803d">${tt().cT} ${f(nt,2)}</text>`;
+ if(sm)h+=`<circle cx="${X(sm.m)}" cy="60" r="5" fill="#1d4f91"/>`;
+ if(ss)h+=`<line x1="${X(ss.m-ss.dn)}" y1="40" x2="${X(ss.m+ss.dn)}" y2="40" stroke="#d22" stroke-width="3"/><line x1="${X(ss.m-ss.dn)}" y1="35" x2="${X(ss.m-ss.dn)}" y2="45" stroke="#d22" stroke-width="2"/><line x1="${X(ss.m+ss.dn)}" y1="35" x2="${X(ss.m+ss.dn)}" y2="45" stroke="#d22" stroke-width="2"/><circle cx="${X(ss.m)}" cy="40" r="5" fill="#d22"/>`;
+ $('bar').innerHTML=h}
+function render(){const t=tt(),sm=st(S.mod),ss=st(S.stu);
+ $('alv').textContent=S.a+'°';tbl('tm',S.mod,sm,false);tbl('ts',S.stu,ss,true);
+ graph('gm',S.mod,sm?MAT[S.m]:0,'#1d4f91',true);graph('gs',S.stu,ss?ss.k:0,'#d22',false);
+ $('rm').innerHTML=card(sm);$('rs').innerHTML=card(ss);
+ $('ro').innerHTML=`<small>${t.ser} ${S.ser} · ${S.on?t.ro1:t.ro0} · N = ${S.stu.length}/5</small>`;
+ const nt=MAT[S.m],dv=s=>s?f(Math.abs(s.m-nt)/nt*100,2):'—';
+ $('cmp').innerHTML=`<tr><td>${t.cn}</td><td>${sm?f(sm.m):'—'}</td><td>${ss?f(ss.m)+' ± '+f(ss.dn):'—'}</td><td>${f(nt,2)}</td></tr><tr><td>${t.ce}</td><td>${sm?f(sm.eps,2):'—'}</td><td>${ss?f(ss.eps,2):'—'}</td><td>—</td></tr><tr><td>${t.cdev}</td><td>${dv(sm)}</td><td>${dv(ss)}</td><td>0</td></tr>`;
+ $('concl').innerHTML=ss?(Math.abs(ss.m-nt)<=ss.dn?'<b class="ok">'+t.cok+'</b>':'<b class="bad">'+t.cbad+'</b>'):t.cno;
+ bar(sm,ss);drawModel();}
+function reset(){S.mod=[];S.stu=[];S.on=false;$('chkr').textContent='';$('msg').textContent='';render()}
+$('al').oninput=e=>{S.a=+e.target.value;S.on=false;render()};
+$('mat').onchange=e=>{S.m=+e.target.value;S.ser++;reset();insUI()};
+$('bs').onclick=()=>{S.on=true;S.b=Math.round(deg(Math.asin(sn(S.a)/MAT[S.m]))*10)/10;upsert(S.mod,S.a,S.b);$('msg').textContent='';render();go()};
+$('be').onclick=()=>{const m=$('msg');if(!S.on){m.textContent=tt().m1;return}const v=num($('bi').value);if(!(v>0&&v<90)){m.textContent=tt().m2;return}
+ upsert(S.stu,S.a,v);$('bi').value='';m.textContent='';render()};
+$('br').onclick=()=>{S.ser++;['sn','sd','se'].forEach(i=>$(i).value='');reset()};
+$('chk').onclick=()=>{const t=tt(),s=st(S.stu);if(!s){$('chkr').textContent=t.need;return}
+ const c=(id,v,l)=>{const x=num($(id).value),ok=isFinite(x)&&Math.abs(x-v)<=Math.max(.03*Math.abs(v),.01);return ok?`<span class="ok">${l}: ✅ ${t.okk}</span>`:`<span class="bad">${l}: ❌ ${t.badd} ${f(v,l==='ε'?2:3)}</span>`};
+ $('chkr').innerHTML=[c('sn',s.m,'n̄'),c('sd',s.dn,'Δn̄'),c('se',s.eps,'ε')].join(' &nbsp; ')};
+$('bp').onclick=()=>window.print();
+$('bpdf').onclick=()=>{const o=document.title;document.title='Lab10_Refraction_index';window.print();document.title=o};
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>setLang(b.dataset.l));
+(function(){let h='';for(let t=0;t<=180;t+=10){const a=rad(t),L=t%30?5:9;h+=`<line x1="${60-50*Math.cos(a)}" y1="${70-50*Math.sin(a)}" x2="${60-(50-L)*Math.cos(a)}" y2="${70-(50-L)*Math.sin(a)}" stroke="#654"/>`}
+ $('protr').insertAdjacentHTML('beforeend',h+'<line x1="60" y1="70" x2="60" y2="30" stroke="#654"/><circle cx="60" cy="70" r="2.5" fill="#654"/>')})();
+setLang('kk');
+
+/* ===== Accessibility ===== */
+const ACC={z:1,hc:0,readf:0,big:0,noanim:0,guide:0,focus:0,speak:0};
+let fidx=0;
+const SEC=()=>[...document.querySelectorAll('main>section')].filter(x=>!x.classList.contains('accsec')||document.body.classList.contains('acc-guide'));
+function accSave(){try{localStorage.setItem('lab10acc',JSON.stringify(ACC))}catch(e){}}
+function accApply(){
+ const b=document.body;
+ document.documentElement.style.setProperty('--z',ACC.z);$('zv').textContent=Math.round(ACC.z*100)+'%';
+ b.classList.toggle('acc-hc',!!ACC.hc);b.classList.toggle('acc-readf',!!ACC.readf);b.classList.toggle('acc-big',!!ACC.big);
+ b.classList.toggle('acc-guide',!!ACC.guide);b.classList.toggle('acc-speak',!!ACC.speak);b.classList.toggle('acc-focus',!!ACC.focus);
+ window.NOANIM=!!ACC.noanim;
+ ['hc','readf','big','noanim','guide','focus','speak'].forEach(k=>$('o-'+k).checked=!!ACC[k]);
+ focusShow();accSave();
+}
+function focusShow(){
+ const all=document.querySelectorAll('main>section');all.forEach(x=>x.classList.remove('cur'));
+ if(!ACC.focus){return}
+ const L=SEC();if(fidx>=L.length)fidx=L.length-1;if(fidx<0)fidx=0;
+ L[fidx].classList.add('cur');$('fpos').textContent=(fidx+1)+' / '+L.length;
+ $('fprev').disabled=fidx===0;$('fnext').disabled=fidx===L.length-1;window.scrollTo(0,0);
+}
+function speakText(t){
+ const msg=$('accmsg');msg.textContent='';
+ if(!('speechSynthesis' in window)){msg.textContent=T[lang].nospeech;return}
+ const ss=speechSynthesis;if(ss.speaking){ss.cancel();return}
+ const codes={kk:'kk-KZ',ru:'ru-RU',en:'en-US'};let code=codes[lang];
+ const vs=ss.getVoices();
+ if(vs.length&&!vs.some(v=>v.lang.toLowerCase().startsWith(lang))){
+  if(lang==='kk'){code='ru-RU';msg.textContent=T.kk.novoice}
+ }
+ const u=new SpeechSynthesisUtterance(t);u.lang=code;u.rate=.9;ss.speak(u);
+}
+function secText(sec){
+ const c=sec.cloneNode(true);c.querySelectorAll('.spk,svg,textarea,script').forEach(e=>e.remove());
+ return c.innerText||c.textContent;
+}
+function addSpk(){
+ document.querySelectorAll('main>section').forEach(sec=>{
+  if(sec.querySelector('.spk'))return;
+  const bt=document.createElement('button');bt.className='spk noprint';bt.textContent=T[lang].spkb;
+  bt.onclick=()=>speakText(secText(sec));sec.insertBefore(bt,sec.firstChild);
+ });
+}
+function refreshSpk(){document.querySelectorAll('.spk').forEach(b=>b.textContent=T[lang].spkb)}
+$('accbtn').onclick=()=>{const p=$('accp');const o=p.classList.toggle('open');$('accbtn').setAttribute('aria-expanded',o)};
+$('zm').onclick=()=>{ACC.z=Math.max(.8,+(ACC.z-.1).toFixed(2));accApply()};
+$('zp').onclick=()=>{ACC.z=Math.min(1.8,+(ACC.z+.1).toFixed(2));accApply()};
+['hc','readf','big','noanim','guide','focus','speak'].forEach(k=>$('o-'+k).onchange=e=>{ACC[k]=e.target.checked?1:0;if(k==='focus')fidx=0;accApply()});
+$('accrst').onclick=()=>{Object.assign(ACC,{z:1,hc:0,readf:0,big:0,noanim:0,guide:0,focus:0,speak:0});if('speechSynthesis' in window)speechSynthesis.cancel();accApply()};
+$('fprev').onclick=()=>{fidx--;focusShow()};$('fnext').onclick=()=>{fidx++;focusShow()};
+$('fspk').onclick=()=>{const L=SEC();speakText(secText(L[fidx]))};
+try{const sv=JSON.parse(localStorage.getItem('lab10acc')||'null');if(sv)Object.assign(ACC,sv)}catch(e){}
+addSpk();accApply();
+const _sl=setLang;setLang=function(l){_sl(l);refreshSpk()};
+</script></body></html>
